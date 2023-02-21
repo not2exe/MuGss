@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "515299132008",
+    "project_id": "mugss-4d578",
+    "storage_bucket": "mugss-4d578.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515299132008:android:06a95935879f0d4cd1b1dd",
+        "android_client_info": {
+          "package_name": "ru.mugss"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "515299132008-36b39ps8g6pdp8javm31tlt09u1njt4h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.mugss",
+            "certificate_hash": "a3ae59f4cfb6ca02a7f1be08761fc974870f4030"
+          }
+        },
+        {
+          "client_id": "515299132008-r5lhsoi2shqdmcrhk8rjcel2t72iadnj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA152hvWz-UvsY4m_EnhOTfx7_VxSMwHt4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "515299132008-r5lhsoi2shqdmcrhk8rjcel2t72iadnj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
