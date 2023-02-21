@@ -3,13 +3,14 @@ package ru.mugss
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import dev.olshevski.navigation.reimagined.NavBackHandler
+import dev.olshevski.navigation.reimagined.NavHost
+import dev.olshevski.navigation.reimagined.rememberNavController
+import ru.mugss.ui.EndScreen
+import ru.mugss.ui.PlayScreen
+import ru.mugss.ui.Screen
+import ru.mugss.ui.StartScreen
 import ru.mugss.ui.theme.MuGssTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,27 +18,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MuGssTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
+                NavHostScreen()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MuGssTheme {
-        Greeting("Android")
+fun NavHostScreen() {
+    val navController = rememberNavController<Screen>(
+        startDestination = Screen.StartScreen
+    )
+    NavBackHandler(navController)
+    NavHost(navController) { screen ->
+        when (screen) {
+            is Screen.StartScreen -> StartScreen(navController)
+            is Screen.PlayScreen -> PlayScreen(navController)
+            is Screen.EndScreen -> EndScreen(navController)
+        }
     }
 }

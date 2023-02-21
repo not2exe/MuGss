@@ -1,4 +1,8 @@
 package ru.mugss.ui
 
-class StartScreen {
+import androidx.compose.runtime.Composable
+import dev.olshevski.navigation.reimagined.NavController
+
+@Composable
+fun StartScreen(navController: NavController<Screen>) {
 }
