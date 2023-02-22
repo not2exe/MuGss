@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun NavHostScreen() {
     val navController = rememberNavController<Screen>(
-        startDestination = Screen.StartScreen
+        startDestination = Screen.PlayScreen
     )
     NavBackHandler(navController)
     NavHost(navController) { screen ->
