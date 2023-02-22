@@ -12,4 +12,15 @@ sealed class Screen : Parcelable {
 
     @Parcelize
     object EndScreen : Screen()
+
+    @Parcelize
+    object AchievementsScreen : Screen()
+
+    @Parcelize
+    object TopScreen : Screen()
+
+    @Parcelize
+    object SettingsScreen : Screen()
+
+
 }
