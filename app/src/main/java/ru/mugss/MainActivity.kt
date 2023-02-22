@@ -35,6 +35,7 @@ fun NavHostScreen() {
             is Screen.StartScreen -> StartScreen(navController)
             is Screen.PlayScreen -> PlayScreen(navController)
             is Screen.EndScreen -> EndScreen(navController)
+            else -> PlayScreen(navController = navController)
         }
     }
 }

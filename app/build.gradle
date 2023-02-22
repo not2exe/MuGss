@@ -67,6 +67,13 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-games:$google_play_version"
 
+    implementation "com.google.accompanist:accompanist-pager:0.28.0"
+    implementation "androidx.compose.ui:ui-util:$compose_version"
+
+    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+
+    implementation "com.google.android.exoplayer:exoplayer:2.18.3"
+
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.activity:activity-compose:1.6.1'
@@ -80,10 +87,4 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
-    implementation "com.google.accompanist:accompanist-pager:0.28.0"
-    implementation "androidx.compose.ui:ui-util:$compose_version"
-
-    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
-
-    implementation "com.google.android.exoplayer:exoplayer:2.18.3"
 }
