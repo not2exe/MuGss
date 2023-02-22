@@ -1,8 +1,10 @@
 package ru.mugss.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,12 +60,14 @@ fun PagerScreen(modifier: Modifier) {
 fun PagerItem(item: Playlist, modifier: Modifier) {
     Column(modifier = modifier) {
         Text(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 40.dp),
             text = item.name,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
-        Icon(
+        Image(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             painter = painterResource(id = item.iconId),
             contentDescription = item.name
