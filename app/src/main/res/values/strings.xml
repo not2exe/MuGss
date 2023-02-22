@@ -3,4 +3,6 @@
     <string name="top">Топ</string>
     <string name="achievements">Достижения</string>
     <string name="settings">Настройки</string>
+    <string name="normal_mode">Обычный режим</string>
+    <string name="anime_mode">Аниме режим</string>
 </resources>
