@@ -4,10 +4,8 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import dev.olshevski.navigation.reimagined.NavController
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,14 +15,24 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import ru.mugss.ui.model.SongModel
-import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.foundation.Image
+import android.os.CountDownTimer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.ViewModel
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.common.base.Stopwatch
+import ru.mugss.ui.stateholders.PlayScreenViewModel
+import java.util.Timer
 
 @Composable
 fun PlayScreen(navController: NavController<Screen>) {
@@ -74,11 +82,46 @@ fun PlayScreen(navController: NavController<Screen>) {
                 songModel = SongModel("???", "?"),
                 modifier = Modifier.align(CenterHorizontally)
             )
-
-
+            SongPlayer(
+                SongModel(
+                    "???",
+                    "?",
+                    urlSong = "https://p.scdn.co/mp3-preview/31423e2a42ea0cfd86fb71930ec51a3612135923?cid=774b29d4f13844c495f206cafdad9c86"
+                ), Modifier.align(CenterHorizontally),
+                PlayScreenViewModel()
+            )
         }
     }
 
+}
+
+
+@Composable
+fun SongPlayer(songModel: SongModel, modifier: Modifier, viewModel: PlayScreenViewModel) {
+    val context = LocalContext.current
+    val sliderValue = viewModel.sliderValue.observeAsState()
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            setMediaItem(
+                MediaItem.fromUri(
+                    songModel.urlSong!!
+                )
+            )
+            addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(playbackState: Int) {
+                    when(playbackState){
+
+                    }
+                    super.onPlaybackStateChanged(playbackState)
+                }
+
+            })
+            prepare()
+            playWhenReady = true
+        }
+    }
+    Slider(value = sliderValue.value ?: 0f, onValueChange = {})
+    DisposableEffect(key1 = Unit) { onDispose { exoPlayer.release() } }
 }
 
 @Composable
@@ -132,18 +175,15 @@ fun SongInfo(songModel: SongModel, modifier: Modifier) {
     )
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RadioScreen() {
     val context = LocalContext.current
     val mediaItem =
         MediaItem.fromUri("https://p.scdn.co/mp3-preview/31423e2a42ea0cfd86fb71930ec51a3612135923?cid=774b29d4f13844c495f206cafdad9c86")
     val player = provideExoPlayer(context = context, mediaItem = mediaItem)
-
     LaunchedEffect(player) {
         player.prepare()
-        player.playWhenReady = false
+        player.playWhenReady = true
     }
 }
 
