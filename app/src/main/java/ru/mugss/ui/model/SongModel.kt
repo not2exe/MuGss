@@ -4,5 +4,5 @@ data class SongModel(
     val name: String,
     val author: String,
     val urlImage: String? = null,
-    val urlSong: String? = null
+    val urlSong: String
 )

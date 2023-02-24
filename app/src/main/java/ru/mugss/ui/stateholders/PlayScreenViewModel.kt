@@ -1,41 +1,54 @@
 package ru.mugss.ui.stateholders
 
 import android.os.CountDownTimer
-import androidx.compose.runtime.remember
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import ru.mugss.Constants
 
 class PlayScreenViewModel : ViewModel() {
-    var timer =
-        object : CountDownTimer(30000, 1) {
-            override fun onTick(p0: Long) {
-                changeSliderValue(p0, 30000)
-            }
-
-            override fun onFinish() {}
-        }
     val sliderValue = MutableLiveData(0f)
-
-
-    fun resume(){
-        timer = object:CountDownTimer(1,1){
-            override fun onTick(p0: Long) {
-                changeSliderValue(p0, 30000)
+    var timeOfSongToEnd = Constants.durationOfSong
+    var timerOfSong =
+        object : CountDownTimer(Constants.durationOfSong, 1) {
+            override fun onTick(timeToEnd: Long) {
+                changeSliderValue(timeToEnd)
+                timeOfSongToEnd = timeToEnd
             }
 
             override fun onFinish() {
-                TODO("Not yet implemented")
+                timeOfSongToEnd = Constants.durationOfSong
+            }
+        }
+    val currentSongs = MutableLiveData(
+        arrayOf(
+            Constants.listOfSongs[0],
+            Constants.listOfSongs[1],
+            Constants.listOfSongs[2]
+        )
+    )
+    val songToGuess = MutableLiveData(Constants.listOfSongs[0].urlSong)
+
+
+    fun resume() {
+        timerOfSong = object : CountDownTimer(timeOfSongToEnd, 1) {
+            override fun onTick(timeToEnd: Long) {
+                changeSliderValue(timeToEnd)
+                timeOfSongToEnd = timeToEnd
             }
 
+            override fun onFinish() {
+                timeOfSongToEnd = Constants.durationOfSong
+            }
         }
-
-    }
-    fun pause(){
-
+        timerOfSong.start()
     }
 
+    fun pause() {
+        timerOfSong.cancel()
+    }
 
-    private fun changeSliderValue(timeToEnd: Long, timeAll: Long) {
+
+    private fun changeSliderValue(timeToEnd: Long, timeAll: Long = Constants.durationOfSong) {
         sliderValue.value = (timeAll - timeToEnd).toFloat() / timeAll.toFloat()
     }
 

@@ -31,11 +31,15 @@ import androidx.lifecycle.ViewModel
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.common.base.Stopwatch
+import ru.mugss.Constants
 import ru.mugss.ui.stateholders.PlayScreenViewModel
 import java.util.Timer
 
 @Composable
 fun PlayScreen(navController: NavController<Screen>) {
+    val viewModel = PlayScreenViewModel()
+    val songs = viewModel.currentSongs.observeAsState()
+    val guessedSongUrl = viewModel.songToGuess.observeAsState()
     Column(
         Modifier
             .background(MaterialTheme.colorScheme.background)
@@ -47,25 +51,13 @@ fun PlayScreen(navController: NavController<Screen>) {
                 .weight(1f)
                 .padding(8.dp)
             CardSongChoose(
-                songModel = SongModel(
-                    "Вина",
-                    "Три дня дождя",
-                    "https://images.genius.com/7194a28e504194114303d6fa0d38141c.1000x1000x1.jpg"
-                ), modifier = modifier
+                songModel = songs.value?.get(0) ?: return, modifier = modifier
             )
             CardSongChoose(
-                songModel = SongModel(
-                    "Где ты",
-                    "Три дня дождя",
-                    "https://dropmp3.net/uploads/posts/2021-03/1615381558_tri-dnya-dozhdya-gde-ty.jpg"
-                ), modifier = modifier
+                songModel = songs.value?.get(1) ?: return, modifier = modifier
             )
             CardSongChoose(
-                songModel = SongModel(
-                    "Отпускай",
-                    "Три дня дождяlkokujkijujkjkjkhjkhujyghkuyghjbgyjbhjgyjhjbgyjvbhjjjjjjj",
-                    "https://text-pesni.com/public/img/songs/565720743/1.jpg"
-                ), modifier = modifier
+                songModel = songs.value?.get(2) ?: return, modifier = modifier
             )
         }
         Card(
@@ -79,15 +71,15 @@ fun PlayScreen(navController: NavController<Screen>) {
             )
         ) {
             SongInfo(
-                songModel = SongModel("???", "?"),
+                songModel = SongModel(
+                    name = Constants.unknownNameOfSong,
+                    author = Constants.unknownAuthorOfSong,
+                    urlSong = guessedSongUrl.value ?: ""
+                ),
                 modifier = Modifier.align(CenterHorizontally)
             )
             SongPlayer(
-                SongModel(
-                    "???",
-                    "?",
-                    urlSong = "https://p.scdn.co/mp3-preview/31423e2a42ea0cfd86fb71930ec51a3612135923?cid=774b29d4f13844c495f206cafdad9c86"
-                ), Modifier.align(CenterHorizontally),
+                guessedSongUrl.value ?: "", Modifier.align(CenterHorizontally),
                 PlayScreenViewModel()
             )
         }
@@ -97,20 +89,29 @@ fun PlayScreen(navController: NavController<Screen>) {
 
 
 @Composable
-fun SongPlayer(songModel: SongModel, modifier: Modifier, viewModel: PlayScreenViewModel) {
+fun SongPlayer(url: String, modifier: Modifier, viewModel: PlayScreenViewModel) {
     val context = LocalContext.current
     val sliderValue = viewModel.sliderValue.observeAsState()
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(
                 MediaItem.fromUri(
-                    songModel.urlSong!!
+                    url
                 )
             )
             addListener(object : Player.Listener {
                 override fun onPlaybackStateChanged(playbackState: Int) {
-                    when(playbackState){
-
+                    when (playbackState) {
+                        Player.STATE_IDLE -> {
+                            viewModel.pause()
+                        }
+                        Player.STATE_BUFFERING -> {
+                            viewModel.pause()
+                        }
+                        Player.STATE_READY -> {
+                            viewModel.resume()
+                        }
+                        Player.STATE_ENDED -> {}
                     }
                     super.onPlaybackStateChanged(playbackState)
                 }
@@ -175,26 +176,6 @@ fun SongInfo(songModel: SongModel, modifier: Modifier) {
     )
 }
 
-@Composable
-fun RadioScreen() {
-    val context = LocalContext.current
-    val mediaItem =
-        MediaItem.fromUri("https://p.scdn.co/mp3-preview/31423e2a42ea0cfd86fb71930ec51a3612135923?cid=774b29d4f13844c495f206cafdad9c86")
-    val player = provideExoPlayer(context = context, mediaItem = mediaItem)
-    LaunchedEffect(player) {
-        player.prepare()
-        player.playWhenReady = true
-    }
-}
 
-fun provideExoPlayer(context: Context, mediaItem: MediaItem): ExoPlayer {
-    val player = ExoPlayer.Builder(context).build()
-    player.setMediaItem(mediaItem)
-    return player
-}
 
-@Preview(showBackground = true)
-@Composable
-fun RadioScreenPreview() {
-    RadioScreen()
-}
+
