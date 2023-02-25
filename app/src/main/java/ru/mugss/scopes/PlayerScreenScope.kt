@@ -1,3 +1,7 @@
 package ru.mugss.scopes
 
-annotation class PlayerScreenScope()
+import javax.inject.Scope
+
+@Scope
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PlayerScreenScope

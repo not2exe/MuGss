@@ -4,24 +4,32 @@ import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.yandex.yatagan.Assisted
 import com.yandex.yatagan.AssistedInject
+import kotlinx.coroutines.launch
 import ru.mugss.Constants
 import ru.mugss.data.network.repository.TrackRepositoryImpl
 import ru.mugss.domain.TrackInteractor
 import ru.mugss.ui.model.SongModel
 
-class PlayScreenViewModel @AssistedInject constructor(
-    savedStateHandle: SavedStateHandle
-) : ViewModel() {
+class PlayScreenViewModel(private val interactor: TrackInteractor) : ViewModel() {
     val counter = MutableLiveData(1)
     val score = MutableLiveData(0)
     val currentTimeOfSong = MutableLiveData(0L)
     var timeOfGameToEnd = MutableLiveData(Constants.playTime)
-    val currentSongs = MutableLiveData<ArrayList<SongModel>>(interactor.getNextThree())
-    val urlOfSongToGuess = MutableLiveData(interactor.getUrlGuessedSong())
+    val currentSongs = MutableLiveData<ArrayList<SongModel>>()
+    val urlOfSongToGuess = MutableLiveData<String>()
     private lateinit var timer: CountDownTimer
     private lateinit var timerOfSong: CountDownTimer
+
+    init {
+        viewModelScope.launch {
+            interactor.refreshInteractor()
+        }
+    }
+
+
 
     fun resumeSongTimer(timeOfEnd: Long) {
         timerOfSong = object : CountDownTimer(Constants.durationOfSong - timeOfEnd, 10) {

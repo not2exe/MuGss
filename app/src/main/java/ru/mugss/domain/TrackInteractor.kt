@@ -7,15 +7,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import ru.mugss.Constants
 import ru.mugss.data.network.repository.TrackRepository
+import ru.mugss.data.network.repository.TrackRepositoryImpl
 import ru.mugss.scopes.AppScope
 import ru.mugss.ui.model.SongModel
 import javax.inject.Inject
 
 
 @AppScope
-class TrackInteractor @Inject constructor(private val trackRepository: TrackRepository) {
+class TrackInteractor @Inject constructor(private val trackRepository: TrackRepositoryImpl) {
     private var list = mutableListOf<SongModel>()
     private var currentTree = arrayListOf<SongModel>()
+
 
     suspend fun refreshInteractor() {
         list = trackRepository.getTracks().toMutableList()
