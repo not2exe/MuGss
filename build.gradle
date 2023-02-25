@@ -7,7 +7,7 @@ buildscript {
         datastore_version = "1.0.0"
         google_play_version = "23.1.0"
         glide_version = "1.0.0-alpha.1"
-        pager_version = "2.18.3"
+        pager_version = "0.28.0"
         livedata_compose ="1.4.0-beta01"
         exo_player_version = "2.18.3"
     }

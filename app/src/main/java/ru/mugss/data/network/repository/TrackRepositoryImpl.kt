@@ -2,9 +2,12 @@ package ru.mugss.data.network.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import ru.mugss.scopes.AppScope
 import ru.mugss.ui.model.SongModel
+import javax.inject.Inject
 
-class TrackRepositoryImpl : TrackRepository {
+@AppScope
+class TrackRepositoryImpl @Inject constructor() : TrackRepository {
     override suspend fun getTracks(): List<SongModel> = withContext(Dispatchers.IO) {
         listOf(
             SongModel(
