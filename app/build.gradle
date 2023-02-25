@@ -67,14 +67,14 @@ dependencies {
 
     implementation "com.google.android.gms:play-services-games:$google_play_version"
 
-    implementation "com.google.accompanist:accompanist-pager:0.28.0"
+    implementation "com.google.accompanist:accompanist-pager:$pager_version"
     implementation "androidx.compose.ui:ui-util:$compose_version"
 
-    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+    implementation "com.github.bumptech.glide:compose:$glide_version"
 
-    implementation "com.google.android.exoplayer:exoplayer:2.18.3"
+    implementation "com.google.android.exoplayer:exoplayer:$exo_player_version"
 
-    implementation 'androidx.compose.runtime:runtime-livedata:1.4.0-beta01'
+    implementation "androidx.compose.runtime:runtime-livedata:$livedata_compose"
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'

@@ -9,14 +9,17 @@ object Constants {
     const val normalMode = "Обычный"
     const val animeMode = "Аниме"
     const val unknownNameOfSong = "???"
-    const val unknownAuthorOfSong  = "?"
+    const val unknownAuthorOfSong = "?"
+    const val valToIncrease = 100
+    const val valToDecrease = 100
+    const val playTime = 900000L
     val list = listOf<Playlist>(
         Playlist(normalMode, R.drawable.ic_normal_mode), Playlist(
             animeMode, R.drawable.ic_anime_mode
         )
     )
-    const val durationOfSong = 30000L
-    val listOfSongs = listOf(
+    const val durationOfSong = 15000L
+    val listOfSongs = arrayListOf(
         SongModel(
             name = "My Beautiful Dark Twisted Fantasy",
             author = "Kanye West",

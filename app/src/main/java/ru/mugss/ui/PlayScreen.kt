@@ -1,65 +1,76 @@
 package ru.mugss.ui
 
 import androidx.compose.material3.Card
-import androidx.compose.runtime.Composable
 import dev.olshevski.navigation.reimagined.NavController
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import ru.mugss.ui.model.SongModel
-import android.content.Context
-import android.os.CountDownTimer
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.material3.*
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.StyledPlayerView
-import com.google.common.base.Stopwatch
 import ru.mugss.Constants
 import ru.mugss.ui.stateholders.PlayScreenViewModel
-import java.util.Timer
+import kotlin.math.roundToInt
 
 @Composable
 fun PlayScreen(navController: NavController<Screen>) {
-    val viewModel = PlayScreenViewModel()
+    val viewModel = remember {
+        PlayScreenViewModel()
+    }
     val songs = viewModel.currentSongs.observeAsState()
-    val guessedSongUrl = viewModel.songToGuess.observeAsState()
+    val guessedSongUrl = viewModel.urlOfSongToGuess.observeAsState()
+    if ((songs.value?.size ?: 0) == 0) return
     Column(
         Modifier
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
     ) {
-        Row(Modifier.height(100.dp)) {}
-        Row {
+        TopBar(viewModel = viewModel)
+        Spacer(modifier = Modifier.size(50.dp))
+        Row() {
+            val firstSong = songs.value?.get(0) ?: return
+            val secondSong = songs.value?.get(1) ?: return
+            val thirdSong = songs.value?.get(2) ?: return
             val modifier = Modifier
                 .weight(1f)
                 .padding(8.dp)
             CardSongChoose(
-                songModel = songs.value?.get(0) ?: return, modifier = modifier
+                songModel = firstSong, modifier = modifier.clickable {
+                    viewModel.handleClick(firstSong)
+                }
             )
             CardSongChoose(
-                songModel = songs.value?.get(1) ?: return, modifier = modifier
+                songModel = secondSong, modifier = modifier.clickable {
+                    viewModel.handleClick(secondSong)
+                }
             )
             CardSongChoose(
-                songModel = songs.value?.get(2) ?: return, modifier = modifier
+                songModel = thirdSong, modifier = modifier.clickable {
+                    viewModel.handleClick(thirdSong)
+                }
             )
         }
+        Spacer(modifier = Modifier.weight(1f))
         Card(
             modifier = Modifier
                 .padding(vertical = 20.dp, horizontal = 32.dp)
@@ -74,14 +85,12 @@ fun PlayScreen(navController: NavController<Screen>) {
                 songModel = SongModel(
                     name = Constants.unknownNameOfSong,
                     author = Constants.unknownAuthorOfSong,
-                    urlSong = guessedSongUrl.value ?: ""
+                    urlSong = ""
                 ),
                 modifier = Modifier.align(CenterHorizontally)
             )
-            SongPlayer(
-                guessedSongUrl.value ?: "", Modifier.align(CenterHorizontally),
-                PlayScreenViewModel()
-            )
+            SongPlayer(guessedSongUrl.value ?: "", viewModel)
+            SliderLayout(viewModel)
         }
     }
 
@@ -89,40 +98,92 @@ fun PlayScreen(navController: NavController<Screen>) {
 
 
 @Composable
-fun SongPlayer(url: String, modifier: Modifier, viewModel: PlayScreenViewModel) {
+fun SongPlayer(url: String, viewModel: PlayScreenViewModel) {
     val context = LocalContext.current
-    val sliderValue = viewModel.sliderValue.observeAsState()
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
     val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            setMediaItem(
-                MediaItem.fromUri(
-                    url
-                )
-            )
-            addListener(object : Player.Listener {
-                override fun onPlaybackStateChanged(playbackState: Int) {
-                    when (playbackState) {
-                        Player.STATE_IDLE -> {
-                            viewModel.pause()
-                        }
-                        Player.STATE_BUFFERING -> {
-                            viewModel.pause()
-                        }
-                        Player.STATE_READY -> {
-                            viewModel.resume()
-                        }
-                        Player.STATE_ENDED -> {}
-                    }
-                    super.onPlaybackStateChanged(playbackState)
-                }
-
-            })
-            prepare()
-            playWhenReady = true
+        ExoPlayer.Builder(context).build()
+    }.apply {
+        if (mediaItemCount > 0) {
+            removeMediaItem(0)
         }
+        setMediaItem(
+            MediaItem.Builder().setUri(url).setClippingConfiguration(
+                MediaItem.ClippingConfiguration.Builder()
+                    .setEndPositionMs(Constants.durationOfSong)
+                    .build()
+            ).build()
+        )
+        prepare()
     }
-    Slider(value = sliderValue.value ?: 0f, onValueChange = {})
-    DisposableEffect(key1 = Unit) { onDispose { exoPlayer.release() } }
+    DisposableEffect(key1 = Unit, effect = {
+        val listener = object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying_: Boolean) {
+                if (isPlaying_) {
+                    viewModel.resumeGameTimer()
+                    viewModel.resumeSongTimer(exoPlayer.currentPosition)
+                } else {
+                    viewModel.pauseGameTimer()
+                    viewModel.pauseSongTimer()
+                }
+            }
+        }
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    exoPlayer.play()
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    exoPlayer.pause()
+                }
+                else -> {}
+            }
+        }
+        val lifecycle = lifecycleOwner.value.lifecycle
+        lifecycle.addObserver(observer)
+        exoPlayer.addListener(listener)
+        onDispose {
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
+            lifecycle.removeObserver(observer)
+        }
+    })
+}
+
+
+@Composable
+fun SliderLayout(viewModel: PlayScreenViewModel) {
+    val currentState = viewModel.currentTimeOfSong.observeAsState()
+    val currentTime = currentState.value ?: 0L
+    val noRipple = object : RippleTheme {
+        @Composable
+        override fun defaultColor(): Color = Color.Unspecified
+
+        @Composable
+        override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f, 0.0f, 0.0f, 0.0f)
+    }
+    CompositionLocalProvider(LocalRippleTheme provides noRipple) {
+        Slider(
+            value = currentTime / Constants.durationOfSong.toFloat(),
+            onValueChange = {})
+    }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, bottom = 40.dp)
+    ) {
+        val timer = (currentTime / 1000.0).roundToInt()
+        val secsToTimer = if (timer < 10) "0$timer" else "$timer"
+        Text(
+            style = MaterialTheme.typography.bodySmall,
+            text = "00:$secsToTimer"
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            style = MaterialTheme.typography.bodySmall,
+            text = "00:${Constants.durationOfSong / 1000}"
+        )
+    }
 }
 
 @Composable
@@ -174,6 +235,32 @@ fun SongInfo(songModel: SongModel, modifier: Modifier) {
             .padding(8.dp),
         textAlign = TextAlign.Center
     )
+}
+
+@Composable
+fun TopBar(viewModel: PlayScreenViewModel) {
+    val counter = viewModel.counter.observeAsState()
+    val score = viewModel.score.observeAsState()
+    val timer = viewModel.timeOfGameToEnd.observeAsState()
+    Row {
+        val txtMod = Modifier.padding(8.dp)
+        Text(
+            style = MaterialTheme.typography.bodyLarge,
+            text = "0:${timer.value}",
+            modifier = txtMod
+        )
+        Spacer(modifier = Modifier.weight(0.33f))
+        Text(
+            style = MaterialTheme.typography.bodyLarge, text = "${counter.value}/10",
+            modifier = txtMod
+        )
+        Spacer(modifier = Modifier.weight(0.33f))
+        Text(
+            style = MaterialTheme.typography.bodyLarge,
+            text = "${score.value}",
+            modifier = txtMod
+        )
+    }
 }
 
 
