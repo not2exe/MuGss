@@ -50,11 +50,13 @@ android {
 }
 
 dependencies {
-
+    def dagger = "2.44.2"
     // Ensure `kotlin-kapt` plugin is applied
-    api("com.yandex.yatagan:api-compiled:${yatagan_version}")
+//    api("com.yandex.yatagan:api-compiled:${yatagan_version}")
     // kapt is slow but generally reliable for mixed projects.
-    kapt("com.yandex.yatagan:processor-jap:${yatagan_version}")
+//    kapt("com.yandex.yatagan:processor-jap:${yatagan_version}")
+    implementation "com.google.dagger:dagger:$dagger"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
 
     implementation("dev.olshevski.navigation:reimagined:$compose_navigation_version")
 

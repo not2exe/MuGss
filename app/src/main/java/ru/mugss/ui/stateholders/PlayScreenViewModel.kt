@@ -2,33 +2,32 @@ package ru.mugss.ui.stateholders
 
 import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yandex.yatagan.Assisted
-import com.yandex.yatagan.AssistedInject
 import kotlinx.coroutines.launch
 import ru.mugss.Constants
-import ru.mugss.data.network.repository.TrackRepositoryImpl
 import ru.mugss.domain.TrackInteractor
 import ru.mugss.ui.model.SongModel
+import kotlin.math.roundToInt
 
 class PlayScreenViewModel(private val interactor: TrackInteractor) : ViewModel() {
     val counter = MutableLiveData(1)
     val score = MutableLiveData(0)
     val currentTimeOfSong = MutableLiveData(0L)
-    var timeOfGameToEnd = MutableLiveData(Constants.playTime)
     val currentSongs = MutableLiveData<ArrayList<SongModel>>()
-    val urlOfSongToGuess = MutableLiveData<String>()
+    val urlOfSongToGuess = MutableLiveData<SongModel>()
+    val isFullScreen = MutableLiveData(false)
+    val multiplier = MutableLiveData(1.0)
     private lateinit var timer: CountDownTimer
     private lateinit var timerOfSong: CountDownTimer
 
     init {
         viewModelScope.launch {
             interactor.refreshInteractor()
+            currentSongs.value = interactor.getNextThree()
+            urlOfSongToGuess.value = interactor.getGuessedSong()
         }
     }
-
 
 
     fun resumeSongTimer(timeOfEnd: Long) {
@@ -37,7 +36,11 @@ class PlayScreenViewModel(private val interactor: TrackInteractor) : ViewModel()
                 currentTimeOfSong.value = Constants.durationOfSong - timeToEnd
             }
 
-            override fun onFinish() {}
+            override fun onFinish() {
+                if (isFullScreen.value == true) {
+                    next()
+                }
+            }
         }
         timerOfSong.start()
     }
@@ -47,30 +50,31 @@ class PlayScreenViewModel(private val interactor: TrackInteractor) : ViewModel()
     }
 
     fun resumeGameTimer() {
-        timer = object : CountDownTimer(timeOfGameToEnd.value ?: Constants.playTime, 10) {
-            override fun onTick(timeToEnd: Long) {
-                timeOfGameToEnd.value = timeToEnd
-            }
-
-            override fun onFinish() {
-            }
-        }
-        timer.start()
     }
 
     fun pauseGameTimer() {
-        timer.cancel()
     }
 
     fun handleClick(song: SongModel) {
-        if (song.urlSong == urlOfSongToGuess.value) {
-            score.value = score.value?.plus(Constants.valToIncrease)
+        if (song == urlOfSongToGuess.value) {
+            score.value =
+                score.value?.plus(
+                    (Constants.valToIncrease * (multiplier.value ?: 1.0)).roundToInt()
+                )
+            multiplier.value = multiplier.value?.plus(Constants.valToIncreaseMultiplier)
             interactor.removeSong(song)
         } else {
             score.value = score.value?.minus(Constants.valToDecrease)
+            multiplier.value = 1.0
         }
-        currentSongs.value = interactor.getNextThree()
-        urlOfSongToGuess.value = interactor.getUrlGuessedSong()
+        isFullScreen.value = true
+
         counter.value = counter.value?.plus(1)
+    }
+
+    fun next() {
+        currentSongs.value = interactor.getNextThree()
+        urlOfSongToGuess.value = interactor.getGuessedSong()
+        isFullScreen.value = false
     }
 }

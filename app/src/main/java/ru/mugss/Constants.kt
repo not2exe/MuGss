@@ -6,6 +6,7 @@ import ru.mugss.ui.model.Playlist
 import ru.mugss.ui.model.SongModel
 
 object Constants {
+    const val valToIncreaseMultiplier = 0.2
     const val normalMode = "Обычный"
     const val animeMode = "Аниме"
     const val unknownNameOfSong = "???"

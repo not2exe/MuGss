@@ -1,10 +1,12 @@
 package ru.mugss.domain
 
-import com.yandex.yatagan.Module
-import com.yandex.yatagan.Provides
+
+import dagger.Module
+import dagger.Provides
 import ru.mugss.scopes.PlayerScreenScope
 import ru.mugss.ui.stateholders.PlayScreenViewModel
 
+@Module
 interface PlayerScreenModule {
     companion object {
         @Provides

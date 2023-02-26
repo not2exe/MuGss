@@ -5,4 +5,8 @@
     <string name="settings">Настройки</string>
     <string name="normal_mode">Обычный режим</string>
     <string name="anime_mode">Аниме режим</string>
+    <string name="next">Следующий</string>
+    <string name="right_guess">Вы правы\nМножитель: </string>
+    <string name="wrong_guess">Мимо :(</string>
+    <string name="scores">Очки: </string>
 </resources>

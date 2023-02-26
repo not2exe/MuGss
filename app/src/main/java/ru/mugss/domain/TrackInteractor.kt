@@ -1,12 +1,5 @@
 package ru.mugss.domain
 
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import ru.mugss.Constants
-import ru.mugss.data.network.repository.TrackRepository
 import ru.mugss.data.network.repository.TrackRepositoryImpl
 import ru.mugss.scopes.AppScope
 import ru.mugss.ui.model.SongModel
@@ -33,7 +26,7 @@ class TrackInteractor @Inject constructor(private val trackRepository: TrackRepo
         return arrayList
     }
 
-    fun getUrlGuessedSong(): String = currentTree.shuffled()[0].urlSong
+    fun getGuessedSong(): SongModel = currentTree.shuffled()[0]
 
     fun removeSong(songModel: SongModel) {
         list.remove(songModel)

@@ -1,6 +1,6 @@
 package ru.mugss.app
 
-import com.yandex.yatagan.Component
+import dagger.Component
 import ru.mugss.domain.PlayerScreenComponent
 import ru.mugss.scopes.AppScope
 
@@ -11,6 +11,6 @@ interface AppComponent {
     interface Builder {
         fun build(): AppComponent
     }
-    fun playerScreenComponent():PlayerScreenComponent.Builder
+    fun playerScreenComponent():PlayerScreenComponent
 
 }
